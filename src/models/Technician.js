@@ -20,6 +20,10 @@ const technicianSchema = new mongoose.Schema({
     timestamps: true
 })
 
+technicianSchema.methods.comparePassword = async function (candidate) {
+    return bcrypt.compare(candidate, this.password)
+}
+
 const Technician = mongoose.model("technicians", technicianSchema)
 
 export default Technician;

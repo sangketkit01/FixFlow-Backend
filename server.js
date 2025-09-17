@@ -5,6 +5,8 @@ import morgan from "morgan";
 import connectDB from "./src/config/db.js";
 import cookieParser from "cookie-parser";
 import userRouter from "./src/routes/userRoute.js";
+import technicianRouter from "./src/routes/TechnicianRoute.js";
+import adminRouter from "./src/routes/AdminRoute.js";
 
 dotenv.config();
 
@@ -18,6 +20,8 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 
 app.use("/user", userRouter)
+app.use("/technician", technicianRouter)
+app.use("/admin", adminRouter)
 
 app.use((req, res, next) => {
     res.status(404).json({ "message": "Route not found" })

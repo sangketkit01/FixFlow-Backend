@@ -18,6 +18,10 @@ const adminSchema = new mongoose.Schema({
     timestamps: true
 })
 
+adminSchema.methods.comparePassword = async function (candidate) {
+    return bcrypt.compare(candidate, this.password)
+}
+
 const Admin = mongoose.model("admins", adminSchema);
 
 export default Admin;
