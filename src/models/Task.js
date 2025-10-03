@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema({
     username: { type: String, ref: "users", required: true },
-    technician_id: { type: mongoose.Schema.Types.ObjectId, ref: "technicians", requiredd: true },
+    technician_id: { type: mongoose.Schema.Types.ObjectId, ref: "technicians", required: true },
     title: { type: String, required: true },
     detail: { type: String },
     address: { type: String, required: true },

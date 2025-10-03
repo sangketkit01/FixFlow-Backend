@@ -8,6 +8,9 @@ import userRouter from "./src/routes/userRoute.js";
 import technicianRouter from "./src/routes/TechnicianRoute.js";
 import adminRouter from "./src/routes/AdminRoute.js";
 
+import taskRouter from "./src/routes/taskRoutes.js";
+
+
 dotenv.config();
 
 const app = express();
@@ -22,6 +25,10 @@ app.use(cookieParser());
 app.use("/user", userRouter)
 app.use("/technician", technicianRouter)
 app.use("/admin", adminRouter)
+
+app.use("/api/technician", technicianRouter);
+
+app.use("/api/tasks", taskRouter);
 
 app.use((req, res, next) => {
     res.status(404).json({ "message": "Route not found" })

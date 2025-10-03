@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import ms from "ms";
 import dotenv from "dotenv";
 import Session from "../models/Session.js";
-import { generateAccessToken } from "../utils/jwt.js";
+import { generateAccessToken } from "../../utils/jwt.js";
 
 dotenv.config();
 

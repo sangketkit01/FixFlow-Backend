@@ -292,3 +292,52 @@ export const registerTechnician = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
+
+
+export const TestLoginTechnician = async (req, res) => {
+    try {
+        const technicianIdForTest = "68dac738c90b460a5dc72cb8"; 
+        
+        // 1. ค้นหาช่างจาก ID ที่ Hardcode ไว้
+        const technician = await Technician.findById(technicianIdForTest);
+        if (!technician) {
+            return res.status(404).json({ 
+                message: `Test technician with ID ${technicianIdForTest} was not found in the DB.` 
+            });
+        }
+
+        // 2. ตรวจสอบให้แน่ใจว่าช่างคนนี้มี username
+        if (!technician.username) {
+            return res.status(500).json({ 
+                message: "Server error: The found technician does not have a 'username' property." 
+            });
+        }
+        
+        // ถ้าผ่านทุกอย่าง ก็สร้าง Token ตามปกติ
+        const accessToken = generateAccessToken(technician.username, "technician");
+        const refreshToken = generateRefreshToken(technician.username, "technician");
+
+        res.cookie("access_token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "Lax",
+            maxAge: ms(process.env.ACCESS_TOKEN_DURATION || "15m")
+        });
+
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "Lax",
+            maxAge: ms(process.env.REFRESH_TOKEN_DURATION || "7d")
+        });
+
+        res.status(200).json({ message: "Test cookie set successfully for " + technician.username });
+
+    } catch (error) {
+        // ❗️ ให้ดู Error ที่แท้จริงใน Terminal ของ Backend
+        console.error("--- TEST LOGIN ERROR ---");
+        console.error(error);
+        console.error("------------------------");
+        res.status(500).json({ message: "Server error during test login. Check backend terminal for details." });
+    }
+};
