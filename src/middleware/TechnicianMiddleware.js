@@ -12,6 +12,7 @@ const REFRESH_TOKEN_DURATION = process.env.REFRESH_TOKEN_DURATION || "7d";
 
 export const authTechnician = async (req, res, next) => {
     try {
+        console.log("Hello world")
         const { access_token, refresh_token } = req.cookies;
 
         let decodedAccess = null;
@@ -20,11 +21,11 @@ export const authTechnician = async (req, res, next) => {
             try {
                 decodedAccess = jwt.verify(access_token, SECRET_KEY);
 
-                if (decodedAccess.role !== "admin") {
+                if (decodedAccess.role !== "technician") {
                     return res.status(403).json({ message: "Forbidden: Technician role required" });
                 }
 
-                req.user = decodedAccess;
+                req.technician = decodedAccess;
                 return next();
             } catch (err) {
                 if (err.name !== "TokenExpiredError") {
@@ -71,10 +72,10 @@ export const authTechnician = async (req, res, next) => {
         session.expires_date = new Date(Date.now() + ms(REFRESH_TOKEN_DURATION));
         await session.save();
 
-        req.user = decodedRefresh;
+        req.technician = decodedRefresh;
         return next();
     } catch (err) {
-        console.error("User auth middleware error:", err);
+        console.error("Technician auth middleware error:", err);
         return res.status(500).json({ message: "Server error" });
     }
 };
