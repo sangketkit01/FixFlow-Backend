@@ -15,7 +15,7 @@ export const LoginUser = async (req, res) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        
+
         const user = await User.findOne({ username })
         if (!user) {
             return res.status(401).json({ "message": "Invalid username" })
@@ -53,8 +53,8 @@ export const LoginUser = async (req, res) => {
         })
 
         return res.json({ message: "Login successful" });
-    } catch (error) {
-        onsole.error(err);
+    } catch (err) {
+        console.error(err);
         return res.status(500).json({ message: "Server error" });
     }
 }
@@ -186,9 +186,10 @@ export const RegisterUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = new User({
-            username,
-            email,
-            phone,
+            username: username,
+            name: username,
+            email: email,
+            phone: phone,
             password: hashedPassword,
             role: "user"
         });
@@ -249,7 +250,7 @@ export const registerTechnician = async (req, res) => {
             return res.status(400).json({ message: "id_card_image is required" });
         }
 
-        
+
         const {
             full_name,
             email,
@@ -261,14 +262,14 @@ export const registerTechnician = async (req, res) => {
             province,
             birth_date
         } = req.body;
-        
+
         const exists = await Technician.findOne({ $or: [{ email }, { id_card }] });
         if (exists) {
             return res.status(400).json({ message: "Email or ID card already exists" });
         }
-        
+
         const idCardImagePath = `/public/registration/id_card/${req.file.filename}`;
-        
+
         const technician = await Technician.create({
             full_name,
             email,
@@ -282,7 +283,7 @@ export const registerTechnician = async (req, res) => {
             id_card_image: idCardImagePath
         });
 
-        
+
         return res.status(201).json({
             message: "Technician registered successfully",
             technician
@@ -292,3 +293,21 @@ export const registerTechnician = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
+
+export const Logout = async (req, res) => {
+    const refreshToken = req.cookies.refresh_token;
+
+    try {
+        if (!refreshToken) {
+            return res.status(400).json({ message: "Refresh token not found" });
+        }
+        await Session.findOneAndUpdate({ refresh_token: refreshToken }, { invoked: true });
+
+        res.clearCookie("access_token");
+        res.clearCookie("refresh_token");
+        return res.json({ message: "Logout successful" });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Server error" });
+    }
+}

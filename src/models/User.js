@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
     username: { type: String, requiredd: true, unique: true },
-    name: { type: String, required: true },
+    name: { type: String },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true, unique: true, minlength: 10, maxlength: 10 },
     gender: { type: String, enum: ["male", "female", "other"], default: "other" },

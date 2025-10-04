@@ -1,36 +1,37 @@
-
 import jwt from "jsonwebtoken";
 import ms from "ms";
 import dotenv from "dotenv";
 import Session from "../models/Session.js";
-import { generateAccessToken } from "../utils/jwt.js";
+import { generateAccessToken } from "../../utils/jwt.js";
 
 dotenv.config();
 
-const SECRET_KEY = process.env.JWT_SECRET;
+const SECRET_KEY = process.env.SECRET_KEY;
 const ACCESS_TOKEN_DURATION = process.env.ACCESS_TOKEN_DURATION || "15m";
+const REFRESH_TOKEN_DURATION = process.env.REFRESH_TOKEN_DURATION || "7d";
 
 export const authTechnician = async (req, res, next) => {
     try {
         const { access_token, refresh_token } = req.cookies;
 
-        if (!access_token) {
-            return res.status(401).json({ message: "No access token provided" });
-        }
+        let decodedAccess = null;
 
-        try {
-            const decoded = jwt.verify(access_token, SECRET_KEY);
+        if (access_token) {
+            try {
+                decodedAccess = jwt.verify(access_token, SECRET_KEY);
 
-            if (decoded.role !== "technician") {
-                return res.status(403).json({ message: "Forbidden: Technician role required" });
-            }
+                if (decodedAccess.role !== "admin") {
+                    return res.status(403).json({ message: "Forbidden: Technician role required" });
+                }
 
-            req.technician = decoded;
-            return next();
-        } catch (err) {
-
-            if (err.name !== "TokenExpiredError") {
-                return res.status(401).json({ message: "Invalid access token" });
+                req.user = decodedAccess;
+                return next();
+            } catch (err) {
+                if (err.name !== "TokenExpiredError") {
+                    console.log("Invalid access token");
+                    return res.status(401).json({ message: "Invalid access token" });
+                }
+                console.log("Access token expired");
             }
         }
 
@@ -55,7 +56,7 @@ export const authTechnician = async (req, res, next) => {
         }
 
         if (decodedRefresh.role !== "technician") {
-            return res.status(403).json({ message: "Forbidden: User role required" });
+            return res.status(403).json({ message: "Forbidden: Technician role required" });
         }
 
         const newAccessToken = generateAccessToken(decodedRefresh.username, decodedRefresh.role);
@@ -67,13 +68,13 @@ export const authTechnician = async (req, res, next) => {
             maxAge: ms(ACCESS_TOKEN_DURATION)
         });
 
-        session.expires_date = new Date(Date.now() + ms(process.env.REFRESH_TOKEN_DURATION || "7d"));
+        session.expires_date = new Date(Date.now() + ms(REFRESH_TOKEN_DURATION));
         await session.save();
 
         req.user = decodedRefresh;
-        next();
+        return next();
     } catch (err) {
-        console.error("Technician auth middleware error:", err);
-        res.status(500).json({ message: "Server error" });
+        console.error("User auth middleware error:", err);
+        return res.status(500).json({ message: "Server error" });
     }
 };
