@@ -24,7 +24,7 @@ export const authAdmin = async (req, res, next) => {
                     return res.status(403).json({ message: "Forbidden: Admin role required" });
                 }
 
-                req.user = decodedAccess;
+                req.admin = decodedAccess;
                 return next();
             } catch (err) {
                 if (err.name !== "TokenExpiredError") {
@@ -71,10 +71,10 @@ export const authAdmin = async (req, res, next) => {
         session.expires_date = new Date(Date.now() + ms(REFRESH_TOKEN_DURATION));
         await session.save();
 
-        req.user = decodedRefresh;
+        req.admin = decodedRefresh;
         return next();
     } catch (err) {
-        console.error("User auth middleware error:", err);
+        console.error("Admin auth middleware error:", err);
         return res.status(500).json({ message: "Server error" });
     }
 };

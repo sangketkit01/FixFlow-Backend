@@ -3,6 +3,8 @@ import { body } from "express-validator";
 import { LoginUser, RegisterUser } from "../controller/IndexController.js";
 import { authUser } from "../middleware/UserAuthMiddleware.js";
 import User from "../models/User.js";
+import upload from "../middleware/Upload.js";
+import { changePassword, updateProfile } from "../controller/UserController.js";
 
 const userRouter = express.Router();
 
@@ -40,5 +42,8 @@ userRouter.post("/register", [
         return true;
     })
 ], RegisterUser)
+
+userRouter.put("/profile", authUser, upload.single("user_profile_image"), updateProfile)
+userRouter.put("/change-password", authUser, changePassword)
 
 export default userRouter;
