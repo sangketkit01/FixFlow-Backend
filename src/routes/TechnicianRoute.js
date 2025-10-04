@@ -3,7 +3,7 @@ import { body } from "express-validator";
 
 // Controller Imports
 import { LoginTechnician, TestLoginTechnician } from "../controller/IndexController.js";
-import { getMyTasks, acceptTask  } from "../controller/task/TechnicianTaskController.js";
+import { getMyTasks, acceptTask, updateTaskStatus } from "../controller/task/TechnicianTaskController.js"; 
 
 
 
@@ -17,7 +17,8 @@ const technicianRouter = express.Router();
 const bypassAuth = (req, res, next) => {
   req.technician = {
     // ใส่ ObjectId ของช่างคนใดคนหนึ่งใน Database ของคุณตรงนี้
-    id: "68dac738c90b460a5dc72cb8" 
+    // id: "68dac738c90b460a5dc72cb8" 
+    id: "68e0349276591a4ab246ee33"
   };
   next(); // ไปยังฟังก์ชันถัดไป (getMyTasks)
 };
@@ -47,6 +48,9 @@ technicianRouter.post("/register", upload.single("id_card_image"), [
 // Route สำหรับดึงงานของช่าง (เรียกใช้ Middleware ปลอม)
 technicianRouter.get("/tasks/my-tasks", bypassAuth, getMyTasks);
 technicianRouter.patch("/tasks/:taskId/accept", bypassAuth, acceptTask);
+
+// <<< 2. เพิ่ม Route สำหรับอัปเดตสถานะตรงนี้
+technicianRouter.put("/tasks/:taskId/status", bypassAuth, updateTaskStatus);
 technicianRouter.get("/test-login", TestLoginTechnician);
 
 
