@@ -1,7 +1,7 @@
 import express, { Router } from "express"
 import { body } from "express-validator";
-import { LoginTechnician } from "../controller/IndexController";
-import upload from "../middleware/Upload";
+import { LoginTechnician } from "../controller/IndexController.js";
+import upload from "../middleware/Upload.js";
 
 const technicianRouter = express.Router();
 
