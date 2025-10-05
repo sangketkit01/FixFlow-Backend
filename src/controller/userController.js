@@ -39,7 +39,7 @@ export const updateProfile = async (req, res) => {
         });
 
         res.json({
-            message: "✅ อัปเดตโปรไฟล์สำเร็จ",
+            message: "อัปเดตโปรไฟล์สำเร็จ",
             user: updatedUser,
         });
     } catch (err) {
@@ -83,7 +83,6 @@ export const changePassword = async (req, res) => {
     }
 };
 
-// GET /user/dashboard
 export const getUserDashboard = async (req, res) => {
     const username = req.user.username;
 
