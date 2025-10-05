@@ -156,71 +156,81 @@ export const updateTaskStatus = async (req, res) => {
 
 
 export const getAvailableTasks = async (req, res) => {
-  try {
-    const tasks = await Task.find({
-      technician_id: null,
-      status: 'pending'
-    }).sort({ createdAt: -1 });
+    try {
+        const tasks = await Task.find({
+            technician_id: null,
+            status: 'pending'
+        }).sort({ createdAt: -1 });
 
-    // attach user info manually
-    const tasksWithUserData = await Promise.all(
-      tasks.map(async task => {
-        const user = await User.findOne({ username: task.username }).select('firstName lastName phone');
-        return { ...task.toObject(), userInfo: user };
-      })
-    );
+        const tasksWithUserData = await Promise.all(
+            tasks.map(async task => {
+                const user = await User.findOne({ username: task.username }).select('firstName lastName phone');
+                return { ...task.toObject(), userInfo: user };
+            })
+        );
 
-    res.json(tasksWithUserData);
+        res.json(tasksWithUserData);
 
-    res.json(tasks);
-  } catch (error) {
-    console.error('Error fetching available tasks:', error);
-    res.status(500).json({
-      message: 'เกิดข้อผิดพลาดในการดึงข้อมูลงาน'
-    });
-  }
+    } catch (error) {
+        console.error('Error fetching available tasks:', error);
+        res.status(500).json({
+            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลงาน'
+        });
+    }
 };
 
 
 
 export const acceptTask = async (req, res) => {
-  try {
-    const taskId = req.params.id;
-    const technicianId = req.user.id; // จาก authTechnician middleware
+    try {
+        const taskId = req.params.id;
+        const technicianUsername = req.technician.username;
 
-    // ตรวจสอบว่างานยังว่างอยู่หรือไม่
-    const task = await Task.findById(taskId);
+        if (!technicianUsername) {
+            return res.status(401).json({ message: 'ไม่ได้รับอนุญาต, ไม่พบข้อมูลช่าง' });
+        }
+        
+        const task = await Task.findById(taskId);
 
-    if (!task) {
-      return res.status(404).json({ message: 'ไม่พบงานนี้' });
+        if (!task) {
+            return res.status(404).json({ message: 'ไม่พบงานนี้' });
+        }
+
+        if (task.technician_id !== null) {
+            return res.status(400).json({
+                message: 'งานนี้ถูกรับไปแล้ว'
+            });
+        }
+
+        const updatedTask = await Task.findByIdAndUpdate(
+            taskId,
+            {
+                technician_id: technicianUsername,
+                status: 'accepted'
+            },
+            { new: true }
+        );
+        
+        if (!updatedTask) {
+             return res.status(404).json({ message: 'ไม่สามารถอัปเดตงานได้' });
+        }
+        
+        const user = await User.findOne({ username: updatedTask.username }).select('firstName lastName phone');
+        const taskWithUserData = {
+            ...updatedTask.toObject(),
+            userInfo: user
+        };
+
+        res.json({
+            message: 'รับงานสำเร็จ',
+            task: taskWithUserData
+        });
+    } catch (error) {
+        console.error('Error accepting task:', error);
+        res.status(500).json({
+            message: 'เกิดข้อผิดพลาดในการรับงาน'
+        });
     }
-
-    if (task.technician !== null) {
-      return res.status(400).json({
-        message: 'งานนี้ถูกรับไปแล้ว'
-      });
-    }
-
-    // อัปเดตงาน: ใส่ technician_id และเปลี่ยนสถานะเป็น accepted
-    const updatedTask = await Task.findByIdAndUpdate(
-      taskId,
-      {
-        technician: technicianId,
-        status: 'accepted'
-      },
-      { new: true }
-    ).populate('username', 'firstName lastName');
-
-    res.json({
-      message: 'รับงานสำเร็จ',
-      task: updatedTask
-    });
-  } catch (error) {
-    console.error('Error accepting task:', error);
-    res.status(500).json({
-      message: 'เกิดข้อผิดพลาดในการรับงาน'
-    });
-  }
 };
 
 
