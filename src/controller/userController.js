@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import path from "path";
 import bcrypt from "bcryptjs";
 import fs from "fs";
+import Task from "../models/Task.js";
 export const updateProfile = async (req, res) => {
     try {
         const username = req.user.username;
@@ -81,3 +82,23 @@ export const changePassword = async (req, res) => {
         res.status(500).json({ message: "เกิดข้อผิดพลาดในเซิร์ฟเวอร์" });
     }
 };
+
+// GET /user/dashboard
+export const getUserDashboard = async (req, res) => {
+    const username = req.user.username;
+
+    const summary = {
+        pending: await Task.countDocuments({ username, status: "pending" }),
+        accepted: await Task.countDocuments({ username, status: "accepted" }),
+        fixing: await Task.countDocuments({ username, status: "fixing" }),
+        success: await Task.countDocuments({ username, status: "successful" }),
+    };
+
+    const recentTasks = await Task.find({ username })
+        .populate("task_type_id")
+        .sort({ createdAt: -1 })
+        .limit(5);
+
+    res.json({ summary, recentTasks });
+};
+
