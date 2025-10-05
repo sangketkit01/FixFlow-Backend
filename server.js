@@ -41,6 +41,9 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get("/ping", (req, res) => {
+    res.send("pong");
+});
 
 app.use("/user", userRouter)
 app.use("/technician", technicianRouter)
@@ -59,6 +62,13 @@ app.use((err, req, res, next) => {
     console.log(err.stack);
     res.status(500).json({ "message": "Server Error" })
 })
+process.on("uncaughtException", (err) => {
+    console.error("UNCAUGHT EXCEPTION:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+    console.error("UNHANDLED PROMISE:", err);
+});
 
 
 const port = process.env.PORT || 8080;

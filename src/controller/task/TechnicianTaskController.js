@@ -133,15 +133,13 @@ export const updateTaskStatus = async (req, res) => {
         message: 'ไม่สามารถอัปเดตงานได้'
       });
     }
-    
+
     // ... (โค้ดตรวจสอบ statusTransitions เหมือนเดิม) ...
-    
+
     // อัปเดตสถานะ
     task.status = status;
     await task.save(); // <-- ตอนนี้จะ save ผ่านแล้ว
 
-    // --- จุดที่ 2: populate ข้อมูล "หลังจาก" บันทึกสำเร็จ ---
-    const populatedTask = await Task.findById(task._id).populate('username', 'firstName lastName phone');
 
     // ดึงข้อมูล user มาแนบด้วย
     const user = await User.findOne({ username: updatedTask.username }).select('firstName lastName phone');
@@ -165,81 +163,81 @@ export const updateTaskStatus = async (req, res) => {
 
 
 export const getAvailableTasks = async (req, res) => {
-    try {
-        const tasks = await Task.find({
-            technician_id: null,
-            status: 'pending'
-        }).sort({ createdAt: -1 });
+  try {
+    const tasks = await Task.find({
+      technician_id: null,
+      status: 'pending'
+    }).sort({ createdAt: -1 });
 
-        const tasksWithUserData = await Promise.all(
-            tasks.map(async task => {
-                const user = await User.findOne({ username: task.username }).select('firstName lastName phone');
-                return { ...task.toObject(), userInfo: user };
-            })
-        );
+    const tasksWithUserData = await Promise.all(
+      tasks.map(async task => {
+        const user = await User.findOne({ username: task.username }).select('firstName lastName phone');
+        return { ...task.toObject(), userInfo: user };
+      })
+    );
 
-        res.json(tasksWithUserData);
+    res.json(tasksWithUserData);
 
-    } catch (error) {
-        console.error('Error fetching available tasks:', error);
-        res.status(500).json({
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลงาน'
-        });
-    }
+  } catch (error) {
+    console.error('Error fetching available tasks:', error);
+    res.status(500).json({
+      message: 'เกิดข้อผิดพลาดในการดึงข้อมูลงาน'
+    });
+  }
 };
 
 
 
 export const acceptTask = async (req, res) => {
-    try {
-        const taskId = req.params.id;
-        const technicianUsername = req.technician.username;
+  try {
+    const taskId = req.params.id;
+    const technicianUsername = req.technician.username;
 
-        if (!technicianUsername) {
-            return res.status(401).json({ message: 'ไม่ได้รับอนุญาต, ไม่พบข้อมูลช่าง' });
-        }
-        
-        const task = await Task.findById(taskId);
-
-        if (!task) {
-            return res.status(404).json({ message: 'ไม่พบงานนี้' });
-        }
-
-        if (task.technician_id !== null) {
-            return res.status(400).json({
-                message: 'งานนี้ถูกรับไปแล้ว'
-            });
-        }
-
-        const updatedTask = await Task.findByIdAndUpdate(
-            taskId,
-            {
-                technician_id: technicianUsername,
-                status: 'accepted'
-            },
-            { new: true }
-        );
-        
-        if (!updatedTask) {
-             return res.status(404).json({ message: 'ไม่สามารถอัปเดตงานได้' });
-        }
-        
-        const user = await User.findOne({ username: updatedTask.username }).select('firstName lastName phone');
-        const taskWithUserData = {
-            ...updatedTask.toObject(),
-            userInfo: user
-        };
-
-        res.json({
-            message: 'รับงานสำเร็จ',
-            task: taskWithUserData
-        });
-    } catch (error) {
-        console.error('Error accepting task:', error);
-        res.status(500).json({
-            message: 'เกิดข้อผิดพลาดในการรับงาน'
-        });
+    if (!technicianUsername) {
+      return res.status(401).json({ message: 'ไม่ได้รับอนุญาต, ไม่พบข้อมูลช่าง' });
     }
+
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      return res.status(404).json({ message: 'ไม่พบงานนี้' });
+    }
+
+    if (task.technician_id !== null) {
+      return res.status(400).json({
+        message: 'งานนี้ถูกรับไปแล้ว'
+      });
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      {
+        technician_id: technicianUsername,
+        status: 'accepted'
+      },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: 'ไม่สามารถอัปเดตงานได้' });
+    }
+
+    const user = await User.findOne({ username: updatedTask.username }).select('firstName lastName phone');
+    const taskWithUserData = {
+      ...updatedTask.toObject(),
+      userInfo: user
+    };
+
+    res.json({
+      message: 'รับงานสำเร็จ',
+      task: taskWithUserData
+    });
+  } catch (error) {
+    console.error('Error accepting task:', error);
+    res.status(500).json({
+      message: 'เกิดข้อผิดพลาดในการรับงาน'
+    });
+  }
 };
 
 

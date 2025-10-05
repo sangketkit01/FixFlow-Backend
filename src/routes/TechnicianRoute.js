@@ -3,11 +3,7 @@ import { body } from "express-validator";
 import { LoginTechnician } from "../controller/IndexController.js";
 import upload from "../middleware/Upload.js";
 import { TechnicianRegister } from "../controller/TechnicianController.js";
-<<<<<<< HEAD
-import { getMyTasks, updateTaskStatus } from "../controller/task/TechnicianTaskController.js";
-=======
 import { getAvailableTasks, acceptTask, getMyTasks, updateTaskStatus } from "../controller/task/TechnicianTaskController.js";
->>>>>>> fes
 import { authTechnician } from "../middleware/TechnicianMiddleware.js";
 import Technician from "../models/Technician.js";
 
@@ -58,4 +54,3 @@ technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
 technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
 
 export default technicianRouter;
-
