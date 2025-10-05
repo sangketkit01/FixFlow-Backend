@@ -8,7 +8,6 @@ import userRouter from "./src/routes/UserRoute.js";
 import technicianRouter from "./src/routes/TechnicianRoute.js";
 import adminRouter from "./src/routes/AdminRoute.js";
 import { Logout } from "./src/controller/IndexController.js";
-
 import taskRouter from "./src/routes/taskRoutes.js";
 
 
@@ -20,7 +19,7 @@ connectDB();
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "htto://localhost:3030"
+    "http://localhost:3030"
 ];
 
 app.use(cors({
@@ -46,7 +45,7 @@ app.use("/user", userRouter)
 app.use("/technician", technicianRouter)
 app.use("/admin", adminRouter)
 
-app.post("/logout", Logout) 
+app.post("/logout", Logout)
 app.use("/api/tasks", taskRouter);
 
 app.use((req, res, next) => {
