@@ -4,12 +4,13 @@ import cors from "cors";
 import morgan from "morgan";
 import connectDB from "./src/config/db.js";
 import cookieParser from "cookie-parser";
-import userRouter from "./src/routes/UserRoute.js";
+import userRouter from "./src/routes/userRoute.js";
 import technicianRouter from "./src/routes/TechnicianRoute.js";
 import adminRouter from "./src/routes/AdminRoute.js";
 import { Logout } from "./src/controller/IndexController.js";
 
 import taskRouter from "./src/routes/taskRoutes.js";
+import taskTypeRouter from "./src/routes/TaskTypeRoute.js";
 
 
 dotenv.config();
@@ -45,9 +46,10 @@ app.use((req, res, next) => {
 app.use("/user", userRouter)
 app.use("/technician", technicianRouter)
 app.use("/admin", adminRouter)
+app.use("/task-type", taskTypeRouter)
+app.use("/task", taskRouter);
 
-app.post("/logout", Logout) 
-app.use("/api/tasks", taskRouter);
+app.post("/logout", Logout)
 
 app.use((req, res, next) => {
     res.status(404).json({ "message": "Route not found" })

@@ -14,8 +14,8 @@ const pathMap = {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        let uploadPath = pathMap[file.fieldname] || "public/uploads"; 
-        
+        let uploadPath = pathMap[file.fieldname] || "public/uploads";
+
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
         }

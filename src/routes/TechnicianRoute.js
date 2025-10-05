@@ -41,12 +41,10 @@ technicianRouter.post("/register", upload.single("technician_registration_id_car
   body("birth_date").isDate().notEmpty().withMessage("Birth date must be provided")
 ], TechnicianRegister);
 
-
-
-// GET: ดึงรายการงานของช่าง
 technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
+technicianRouter.patch("/tasks/:taskId/accept", authTechnician, acceptTask);
 
-// PUT: อัปเดตสถานะงาน
+// <<< 2. เพิ่ม Route สำหรับอัปเดตสถานะตรงนี้
 technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
 
 
