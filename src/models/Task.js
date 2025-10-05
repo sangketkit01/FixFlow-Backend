@@ -8,7 +8,7 @@ const taskSchema = new mongoose.Schema({
     address: { type: String, required: true },
     district: { type: String, required: true },
     province: { type: String, required: true },
-    status: { type: String, enum: ["pending", "request_canceling", "cancel", "fixing", "successful", "failed"], default: "pending" },
+    status: { type: String, enum: ["pending", "accepted", "request_canceling", "cancelled", "fixing", "successful", "failed"], default: "pending" },
 }, {
     timestamps: true
 })

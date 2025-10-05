@@ -3,7 +3,7 @@ import { body } from "express-validator";
 import { LoginTechnician } from "../controller/IndexController.js";
 import upload from "../middleware/Upload.js";
 import { TechnicianRegister } from "../controller/TechnicianController.js";
-import { acceptTask, getMyTasks, updateTaskStatus } from "../controller/task/TechnicianTaskController.js";
+import { getMyTasks, updateTaskStatus } from "../controller/task/TechnicianTaskController.js";
 import { authTechnician } from "../middleware/TechnicianMiddleware.js";
 import Technician from "../models/Technician.js";
 
@@ -42,10 +42,11 @@ technicianRouter.post("/register", upload.single("technician_registration_id_car
 ], TechnicianRegister);
 
 
-technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
-technicianRouter.patch("/tasks/:taskId/accept", authTechnician, acceptTask);
 
-// <<< 2. เพิ่ม Route สำหรับอัปเดตสถานะตรงนี้
+// GET: ดึงรายการงานของช่าง
+technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
+
+// PUT: อัปเดตสถานะงาน
 technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
 
 
