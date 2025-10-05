@@ -8,7 +8,6 @@ import userRouter from "./src/routes/userRoute.js";
 import technicianRouter from "./src/routes/TechnicianRoute.js";
 import adminRouter from "./src/routes/AdminRoute.js";
 import { Logout } from "./src/controller/IndexController.js";
-
 import taskRouter from "./src/routes/taskRoutes.js";
 import taskTypeRouter from "./src/routes/TaskTypeRoute.js";
 
@@ -50,6 +49,7 @@ app.use("/task-type", taskTypeRouter)
 app.use("/task", taskRouter);
 
 app.post("/logout", Logout)
+app.use("/api/tasks", taskRouter);
 
 app.use((req, res, next) => {
     res.status(404).json({ "message": "Route not found" })

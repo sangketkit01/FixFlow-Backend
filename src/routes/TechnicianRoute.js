@@ -3,7 +3,11 @@ import { body } from "express-validator";
 import { LoginTechnician } from "../controller/IndexController.js";
 import upload from "../middleware/Upload.js";
 import { TechnicianRegister } from "../controller/TechnicianController.js";
+<<<<<<< HEAD
 import { getMyTasks, updateTaskStatus } from "../controller/task/TechnicianTaskController.js";
+=======
+import { getAvailableTasks, acceptTask, getMyTasks, updateTaskStatus } from "../controller/task/TechnicianTaskController.js";
+>>>>>>> fes
 import { authTechnician } from "../middleware/TechnicianMiddleware.js";
 import Technician from "../models/Technician.js";
 
@@ -41,11 +45,17 @@ technicianRouter.post("/register", upload.single("technician_registration_id_car
   body("birth_date").isDate().notEmpty().withMessage("Birth date must be provided")
 ], TechnicianRegister);
 
-technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
-technicianRouter.patch("/tasks/:taskId/accept", authTechnician, acceptTask);
+// GET: ดึงงานที่ยังไม่มีช่างรับ
+technicianRouter.get("/tasks/available", authTechnician, getAvailableTasks);
 
-// <<< 2. เพิ่ม Route สำหรับอัปเดตสถานะตรงนี้
+// PUT: รับงาน (ใส่ technician_id และเปลี่ยนสถานะ)
+technicianRouter.put("/tasks/:id/accept", authTechnician, acceptTask);
+
+// GET: ดึงรายการงานของช่าง
+technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
+
+// PUT: อัปเดตสถานะงาน
 technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
 
-
 export default technicianRouter;
+
