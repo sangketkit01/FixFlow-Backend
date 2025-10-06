@@ -4,6 +4,7 @@ import path from "path";
 import Payment from "../../models/Payment.js";
 import PaymentDetail from "../../models/PaymentDetail.js";
 import TaskImage from "../../models/TaskImage.js";
+import Technician from "../../models/Technician.js";
 
 export const getUnassignedTasks = async (req, res) => {
     try {
@@ -65,13 +66,28 @@ export const getUserTasks = async (req, res) => {
 
         const tasks = await Task.find({
             username: username,
-            status: { $in: ["pending", "accepted", "fixing", "cancelled"] }
+            status: { $in: ["pending", "accepted", "fixing", "cancelled"] },
         })
             .populate("task_type_id", "name")
-            .populate("technician_id", "name phone")
             .sort({ createdAt: -1 });
 
-        res.json(tasks);
+        const results = await Promise.all(
+            tasks.map(async (task) => {
+                const technician = task.technician_id
+                    ? await Technician.findOne(
+                        { username: task.technician_id },
+                        "full_name phone email"
+                    )
+                    : null;
+
+                return {
+                    ...task.toObject(),
+                    technician,
+                };
+            })
+        );
+
+        res.status(200).json(results);
     } catch (err) {
         console.error("❌ Error fetching user tasks:", err);
         res.status(500).json({ message: "เกิดข้อผิดพลาดในเซิร์ฟเวอร์" });
@@ -83,17 +99,20 @@ export const getUserHistoryTasks = async (req, res) => {
     try {
         const username = req.user.username;
 
-
         const tasks = await Task.find({
             username,
             status: "successful",
         })
             .populate("task_type_id", "name")
-            .populate("technician_id", "full_name phone")
             .sort({ updatedAt: -1 });
 
         const results = await Promise.all(
             tasks.map(async (task) => {
+                const technician = await Technician.findOne(
+                    { username: task.technician_id },
+                    "full_name phone email"
+                );
+
                 const payment = await Payment.findOne({ task_id: task._id });
                 const paymentDetails = payment
                     ? await PaymentDetail.find({ payment_id: payment._id })
@@ -102,6 +121,7 @@ export const getUserHistoryTasks = async (req, res) => {
 
                 return {
                     ...task.toObject(),
+                    technician: technician || null,
                     payment,
                     paymentDetails,
                     taskImages,
@@ -115,4 +135,5 @@ export const getUserHistoryTasks = async (req, res) => {
         res.status(500).json({ message: "เกิดข้อผิดพลาดในเซิร์ฟเวอร์" });
     }
 };
+
 
