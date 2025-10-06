@@ -3,9 +3,11 @@ import { body } from "express-validator";
 import { LoginTechnician } from "../controller/IndexController.js";
 import upload from "../middleware/Upload.js";
 import { TechnicianRegister } from "../controller/TechnicianController.js";
-import { getAvailableTasks, acceptTask, getMyTasks, updateTaskStatus } from "../controller/task/TechnicianTaskController.js";
+import { getAvailableTasks, acceptTask, getMyTasks, updateTaskStatus, getTaskById, getTaskImages } from "../controller/task/TechnicianTaskController.js";
 import { authTechnician } from "../middleware/TechnicianMiddleware.js";
 import Technician from "../models/Technician.js";
+
+
 
 const technicianRouter = express.Router();
 
@@ -49,6 +51,12 @@ technicianRouter.put("/tasks/:id/accept", authTechnician, acceptTask);
 
 // GET: ดึงรายการงานของช่าง
 technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
+
+// GET: ดึงข้อมูลงานชิ้นเดียวตาม ID
+technicianRouter.get("/tasks/:taskId", authTechnician, getTaskById);
+
+// GET: ดึงรูปภาพทั้งหมดของงานชิ้นเดียว
+technicianRouter.get("/tasks/:taskId/images", authTechnician, getTaskImages);
 
 // PUT: อัปเดตสถานะงาน
 technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
