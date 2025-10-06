@@ -62,4 +62,3 @@ technicianRouter.get("/tasks/:taskId/images", authTechnician, getTaskImages);
 technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
 
 export default technicianRouter;
-

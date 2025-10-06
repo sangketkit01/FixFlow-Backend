@@ -4,11 +4,12 @@ import cors from "cors";
 import morgan from "morgan";
 import connectDB from "./src/config/db.js";
 import cookieParser from "cookie-parser";
-import userRouter from "./src/routes/UserRoute.js";
+import userRouter from "./src/routes/userRoute.js";
 import technicianRouter from "./src/routes/TechnicianRoute.js";
 import adminRouter from "./src/routes/AdminRoute.js";
 import { Logout } from "./src/controller/IndexController.js";
 import taskRouter from "./src/routes/taskRoutes.js";
+import taskTypeRouter from "./src/routes/TaskTypeRoute.js";
 
 
 dotenv.config();
@@ -40,10 +41,15 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get("/ping", (req, res) => {
+    res.send("pong");
+});
 
 app.use("/user", userRouter)
 app.use("/technician", technicianRouter)
 app.use("/admin", adminRouter)
+app.use("/task-type", taskTypeRouter)
+app.use("/task", taskRouter);
 
 app.post("/logout", Logout)
 app.use("/api/tasks", taskRouter);
@@ -56,6 +62,13 @@ app.use((err, req, res, next) => {
     console.log(err.stack);
     res.status(500).json({ "message": "Server Error" })
 })
+process.on("uncaughtException", (err) => {
+    console.error("UNCAUGHT EXCEPTION:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+    console.error("UNHANDLED PROMISE:", err);
+});
 
 
 const port = process.env.PORT || 8080;
