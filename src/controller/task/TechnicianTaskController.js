@@ -1,5 +1,6 @@
 import Task from "../../models/Task.js";
 import User from "../../models/User.js";
+import TaskImage from "../../models/TaskImage.js";
 import mongoose from "mongoose";
 
 /**
@@ -238,6 +239,73 @@ export const acceptTask = async (req, res) => {
       message: 'เกิดข้อผิดพลาดในการรับงาน'
     });
   }
+};
+
+
+/**
+ * @desc    ดึงข้อมูลงานชิ้นเดียวตาม ID
+ * @route   GET /api/technician/tasks/:taskId
+ */
+export const getTaskById = async (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const technicianUsername = req.technician.username;
+
+        // ตรวจสอบว่า taskId เป็น ObjectId ที่ถูกต้องหรือไม่
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({ message: "รหัสงานไม่ถูกต้อง" });
+        }
+
+        const task = await Task.findById(taskId);
+
+        if (!task) {
+            return res.status(404).json({ message: "ไม่พบงานที่ระบุ" });
+        }
+
+        // ตรวจสอบความปลอดภัย: ช่างต้องเป็นเจ้าของงานเท่านั้นถึงจะดูได้
+        if (task.technician_id !== technicianUsername) {
+            return res.status(403).json({ message: "คุณไม่มีสิทธิ์เข้าถึงงานนี้" });
+        }
+
+        // ส่งข้อมูลกลับไปให้ Frontend (ตรงกับที่ Frontend คาดหวัง)
+        res.status(200).json({ task: task });
+
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลงาน:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาดบนเซิร์ฟเวอร์" });
+    }
+};
+
+/**
+ * @desc    ดึงรูปภาพทั้งหมดของงานชิ้นเดียวตาม ID
+ * @route   GET /api/technician/tasks/:taskId/images
+ */
+export const getTaskImages = async (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const technicianUsername = req.technician.username;
+
+        // ตรวจสอบ ObjectId
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({ message: "รหัสงานไม่ถูกต้อง" });
+        }
+
+        // ตรวจสอบก่อนว่าช่างเป็นเจ้าของงานจริง เพื่อความปลอดภัย
+        const parentTask = await Task.findById(taskId);
+        if (!parentTask || parentTask.technician_id !== technicianUsername) {
+            return res.status(403).json({ message: "คุณไม่มีสิทธิ์ดูรูปภาพของงานนี้" });
+        }
+
+        // ค้นหารูปภาพทั้งหมดที่ task_id ตรงกัน
+        const images = await TaskImage.find({ task_id: taskId });
+
+        // ส่งข้อมูลกลับไปให้ Frontend (ตรงกับที่ Frontend คาดหวัง)
+        res.status(200).json({ images: images });
+
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการดึงรูปภาพ:", error);
+        res.status(500).json({ message: "เกิดข้อผิดพลาดบนเซิร์ฟเวอร์" });
+    }
 };
 
 
