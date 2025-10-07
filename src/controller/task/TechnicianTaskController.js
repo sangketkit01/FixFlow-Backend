@@ -10,14 +10,17 @@ import mongoose from "mongoose";
 export const getMyTasks = async (req, res) => {
   try {
     const technician_username = req.technician.username;
+
     if (!technician_username) {
       return res
         .status(401)
         .json({ message: "ไม่ได้รับอนุญาต, ไม่พบ username ของช่าง" });
     }
 
+    // กรองเฉพาะงานที่ไม่ใช่ pending
     const tasks = await Task.find({
       technician_id: technician_username,
+      status: { $ne: 'pending' }  // ← เพิ่มเงื่อนไข status ไม่เท่ากับ pending
     }).sort({ createdAt: -1 });
 
     // ดึงข้อมูล user มาเองแทนการใช้ populate เพราะ username เป็น String
