@@ -12,7 +12,10 @@ import taskRouter from "./src/routes/taskRoutes.js";
 import taskTypeRouter from "./src/routes/TaskTypeRoute.js";
 
 
-dotenv.config();
+dotenv.config(); 
+
+
+
 
 const app = express();
 connectDB();
@@ -64,6 +67,14 @@ process.on("unhandledRejection", (err) => {
     console.error("UNHANDLED PROMISE:", err);
 });
 
+
+
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true,               
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
