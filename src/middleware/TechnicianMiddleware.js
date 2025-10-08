@@ -12,7 +12,6 @@ const REFRESH_TOKEN_DURATION = process.env.REFRESH_TOKEN_DURATION || "7d";
 
 export const authTechnician = async (req, res, next) => {
     try {
-        console.log("Hello world")
         const { access_token, refresh_token } = req.cookies;
 
         let decodedAccess = null;
