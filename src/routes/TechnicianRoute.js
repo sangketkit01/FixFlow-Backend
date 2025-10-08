@@ -6,7 +6,12 @@ import { TechnicianRegister } from "../controller/TechnicianController.js";
 import { getAvailableTasks, acceptTask, getMyTasks, updateTaskStatus, getTaskById, getTaskImages } from "../controller/task/TechnicianTaskController.js";
 import { authTechnician } from "../middleware/TechnicianMiddleware.js";
 import Technician from "../models/Technician.js";
-
+import { 
+  getTechnicianProfile, 
+  updateTechnicianProfile, 
+  changeTechnicianPassword 
+} from "../controller/TechnicianProfileController.js";
+import uploadProfile from "../middleware/UploadTechnicianProfile.js";
 
 
 const technicianRouter = express.Router();
@@ -60,5 +65,23 @@ technicianRouter.get("/tasks/:taskId/images", authTechnician, getTaskImages);
 
 // PUT: อัปเดตสถานะงาน
 technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
+
+// ===============================
+// Technician Profile Management
+// ===============================
+
+// GET: ดึงข้อมูลโปรไฟล์ของช่าง
+technicianRouter.get("/profile", authTechnician, getTechnicianProfile);
+
+// PUT: อัปเดตข้อมูลโปรไฟล์ (แก้ไขข้อมูลช่าง)
+technicianRouter.put(
+  "/profile",
+  authTechnician,
+  uploadProfile.single("profile_image"),
+  updateTechnicianProfile
+);
+
+// PUT: เปลี่ยนรหัสผ่านของช่าง
+technicianRouter.put("/change-password", authTechnician, changeTechnicianPassword);
 
 export default technicianRouter;

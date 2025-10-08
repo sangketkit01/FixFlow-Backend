@@ -54,6 +54,9 @@ app.use("/task", taskRouter);
 app.post("/logout", Logout)
 app.use("/api/tasks", taskRouter);
 
+// ให้ Express เปิดโฟลเดอร์เก็บรูปโปรไฟล์ช่าง
+app.use("/images/technicians", express.static("public/images/technicians"));
+
 app.use((req, res, next) => {
     res.status(404).json({ "message": "Route not found" })
 })
