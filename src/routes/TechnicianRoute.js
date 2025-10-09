@@ -6,6 +6,12 @@ import { TechnicianRegister } from "../controller/TechnicianController.js";
 import { getAvailableTasks, acceptTask, getMyTasks, updateTaskStatus, getTaskById, getTaskImages } from "../controller/task/TechnicianTaskController.js";
 import { authTechnician } from "../middleware/TechnicianMiddleware.js";
 import Technician from "../models/Technician.js";
+import { 
+  getTechnicianProfile, 
+  updateTechnicianProfile, 
+  changeTechnicianPassword 
+} from "../controller/TechnicianProfileController.js";
+import uploadProfile from "../middleware/UploadTechnicianProfile.js";
 import TechnicianOwnerTaskMiddleware from "../middleware/TechnicianOwnerTaskMiddleware.js";
 import { requestCancelTask, uploadTaskImage } from "../controller/task/TaskController.js";
 import { addPaymentDetail, confirmPayment, deletePaymentDetail, getPaymentDetails, getPaymentInfo, upsertPayment } from "../controller/PaymentController.js";
@@ -79,5 +85,23 @@ technicianRouter.post("/payment-detail", authTechnician, TechnicianOwnerTaskMidd
 technicianRouter.delete("/payment-detail/:id", authTechnician, TechnicianOwnerTaskMiddleware, deletePaymentDetail);
 technicianRouter.get("/tasks/:taskId/payment-info", authTechnician, TechnicianOwnerTaskMiddleware, getPaymentInfo);
 technicianRouter.put("/tasks/:taskId/confirm-payment", authTechnician, TechnicianOwnerTaskMiddleware, confirmPayment);
+
+// ===============================
+// Technician Profile Management
+// ===============================
+
+// GET: ดึงข้อมูลโปรไฟล์ของช่าง
+technicianRouter.get("/profile", authTechnician, getTechnicianProfile);
+
+// PUT: อัปเดตข้อมูลโปรไฟล์ (แก้ไขข้อมูลช่าง)
+technicianRouter.put(
+  "/profile",
+  authTechnician,
+  uploadProfile.single("profile_image"),
+  updateTechnicianProfile
+);
+
+// PUT: เปลี่ยนรหัสผ่านของช่าง
+technicianRouter.put("/change-password", authTechnician, changeTechnicianPassword);
 
 export default technicianRouter;
