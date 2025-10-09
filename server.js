@@ -39,12 +39,6 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use("/images", express.static("public"));
 
-
-app.use((req, res, next) => {
-    res.set("Cache-Control", "no-store");
-    next();
-});
-
 app.get("/ping", (req, res) => {
     res.send("pong");
 });

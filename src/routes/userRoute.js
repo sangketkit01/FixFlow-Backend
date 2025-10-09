@@ -4,8 +4,9 @@ import { LoginUser, RegisterUser } from "../controller/IndexController.js";
 import { authUser } from "../middleware/UserAuthMiddleware.js";
 import User from "../models/User.js";
 import upload from "../middleware/Upload.js";
-import { changePassword, getUserDashboard, updateProfile } from "../controller/UserController.js";
-import { getUserHistoryTasks } from "../controller/task/TaskController.js";
+import { changePassword, getUserDashboard, updateProfile, userUploadTaskImage } from "../controller/UserController.js";
+import { deleteSlip, getUserHistoryTasks, getUserTaskDetail, requestCancelTask, uploadSlip } from "../controller/task/TaskController.js";
+import { UserOwnerTaskMiddleware } from "../middleware/UserOwnerTaskMiddleware.js";
 
 const userRouter = express.Router();
 
@@ -49,5 +50,11 @@ userRouter.put("/change-password", authUser, changePassword)
 
 userRouter.get("/history", authUser, getUserHistoryTasks)
 userRouter.get("/dashboard", authUser, getUserDashboard)
+
+userRouter.get("/tasks/:taskId", authUser, UserOwnerTaskMiddleware, getUserTaskDetail);
+userRouter.post("/tasks/:taskId/upload-slip", authUser, UserOwnerTaskMiddleware, upload.single("slip_image"), uploadSlip);
+userRouter.delete("/tasks/:taskId/delete-slip", authUser, UserOwnerTaskMiddleware, deleteSlip);
+userRouter.put("/tasks/:taskId/request-cancel", authUser, UserOwnerTaskMiddleware, requestCancelTask);
+userRouter.post("/tasks/:taskId/upload-image", authUser, UserOwnerTaskMiddleware, upload.single("task_image"), userUploadTaskImage);
 
 export default userRouter;

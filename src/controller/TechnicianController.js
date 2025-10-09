@@ -32,13 +32,12 @@ export const TechnicianRegister = async (req, res) => {
             return res.status(400).json({ message: "Email already registered" });
         }
 
-        // ✅ เตรียมข้อมูลไฟล์
         let id_card_image = null;
         let id_card_image_path = null;
 
         if (req.file) {
-            id_card_image = req.file.filename; // ชื่อไฟล์
-            id_card_image_path = req.file.path; // path เต็มจาก multer
+            id_card_image = req.file.filename;
+            id_card_image_path = req.file.path;
         }
 
         // ✅ insert DB
