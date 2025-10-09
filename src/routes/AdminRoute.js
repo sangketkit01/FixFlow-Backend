@@ -241,15 +241,26 @@ adminRouter.put("/technicians/status/:id", authAdmin, async (req, res) => {
 
 adminRouter.delete("/technicians/:id", authAdmin, async (req, res) => {
   try {
-    const deleted = await Technician.findByIdAndDelete(req.params.id);
-    if (!deleted)
-      return res.status(404).json({ message: "Technician not found" });
-    res.json({ message: "Technician deleted successfully" });
+    let tech = await Technician.findById(req.params.id);
+
+    if (tech) {
+      await tech.deleteOne();
+      return res.json({ message: "Technician deleted successfully" });
+    }
+
+    let registration = await TechnicianRegistration.findById(req.params.id);
+    if (registration) {
+      await registration.deleteOne();
+      return res.json({ message: "Registration deleted successfully" });
+    }
+
+    res.status(404).json({ message: "Technician/Registration not found" });
   } catch (err) {
-    console.error("Delete technician error:", err);
-    res.status(500).json({ message: "Error deleting technician" });
+    console.error("Delete technician/registration error:", err);
+    res.status(500).json({ message: "Error deleting technician/registration" });
   }
 });
+
 
 adminRouter.post("/registrations/:id/approve", authAdmin, async (req, res) => {
   try {
