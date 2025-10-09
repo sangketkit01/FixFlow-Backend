@@ -110,7 +110,7 @@ adminRouter.get("/technicians-all", authAdmin, async (req, res) => {
             total_tasks: 0,
             successful_tasks: 0,
             fixing_tasks: 0,
-          }; // เพิ่ม Task stats ให้ registration
+          }; 
         }
       })
     );
@@ -125,53 +125,44 @@ adminRouter.get("/technicians-all", authAdmin, async (req, res) => {
 adminRouter.get("/technicians/:id", authAdmin, async (req, res) => {
   try {
     let tech = await Technician.findById(req.params.id).select("-password");
+    let type = "technician";
 
     if (!tech) {
       tech = await TechnicianRegistration.findById(req.params.id);
+      type = "registration";
     }
 
-    if (!tech) {
-      return res.status(404).json({ message: "Technician not found" });
-    }
+    if (!tech) return res.status(404).json({ message: "Technician not found" });
 
-    if (tech instanceof Technician) {
-      const totalTasks = await Task.countDocuments({
-        technician_id: req.params.id,
-      });
-      const successfulTasks = await Task.countDocuments({
+    let totalTasks = 0,
+      successfulTasks = 0,
+      fixingTasks = 0;
+
+    if (type === "technician") {
+      totalTasks = await Task.countDocuments({ technician_id: req.params.id });
+      successfulTasks = await Task.countDocuments({
         technician_id: req.params.id,
         status: "successful",
       });
-      const fixingTasks = await Task.countDocuments({
+      fixingTasks = await Task.countDocuments({
         technician_id: req.params.id,
         status: "fixing",
       });
-
-      const techWithStats = {
-        ...tech.toObject(),
-        total_tasks: totalTasks,
-        successful_tasks: successfulTasks,
-        fixing_tasks: fixingTasks,
-        type: "technician",
-      };
-
-      return res.json(techWithStats);
-    } else {
-      const registrationWithType = {
-        ...tech.toObject(),
-        total_tasks: 0,
-        successful_tasks: 0,
-        fixing_tasks: 0,
-        type: "registration",
-      };
-
-      return res.json(registrationWithType);
     }
+
+    res.json({
+      ...tech.toObject(),
+      total_tasks: totalTasks,
+      successful_tasks: successfulTasks,
+      fixing_tasks: fixingTasks,
+      type,
+    });
   } catch (err) {
     console.error("Get technician error:", err);
     res.status(500).json({ message: "Server Error" });
   }
 });
+
 
 adminRouter.post("/technicians", authAdmin, async (req, res) => {
   try {
@@ -198,20 +189,37 @@ adminRouter.post("/technicians", authAdmin, async (req, res) => {
 
 adminRouter.put("/technicians/:id", authAdmin, async (req, res) => {
   try {
-    const updatedTech = await Technician.findByIdAndUpdate(
+    let updatedTech = await Technician.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     ).select("-password");
 
+    let collectionType = "technician";
+
+    if (!updatedTech) {
+      updatedTech = await TechnicianRegistration.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true, runValidators: true }
+      );
+      collectionType = "registration";
+    }
+
     if (!updatedTech)
       return res.status(404).json({ message: "Technician not found" });
-    res.json({ message: "Technician updated", tech: updatedTech });
+
+    res.json({
+      message: "Technician updated",
+      tech: updatedTech,
+      type: collectionType,
+    });
   } catch (err) {
     console.error("Update technician error:", err);
     res.status(500).json({ message: "Error updating technician" });
   }
 });
+
 
 adminRouter.put("/technicians/status/:id", authAdmin, async (req, res) => {
   try {
