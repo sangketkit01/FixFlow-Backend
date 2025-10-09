@@ -126,8 +126,7 @@ export const LoginAdmin = async (req, res) => {
             return res.status(401).json({ "message": "Invalid username" })
         }
 
-        // const isMatch = await admin.comparePassword(password);
-                const isMatch = admin.password === password; 
+        const isMatch = await admin.comparePassword(password);
 
         if (!isMatch) {
             return res.status(401).json({ "message": "Invalid password" })
