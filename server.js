@@ -10,6 +10,7 @@ import adminRouter from "./src/routes/AdminRoute.js";
 import { Logout } from "./src/controller/IndexController.js";
 import taskRouter from "./src/routes/taskRoutes.js";
 import taskTypeRouter from "./src/routes/TaskTypeRoute.js";
+import PaymentRouter from "./src/routes/PaymentRoute.js";
 
 
 dotenv.config(); 
@@ -56,6 +57,8 @@ app.use("/task", taskRouter);
 
 app.post("/logout", Logout)
 app.use("/api/tasks", taskRouter);
+app.use("/admin/stats", PaymentRouter);
+
 
 app.use((req, res, next) => {
     res.status(404).json({ "message": "Route not found" })

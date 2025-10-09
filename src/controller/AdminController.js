@@ -1,7 +1,7 @@
 import Technician from "../models/Technician.js";
 import Task from "../models/Task.js";
 
-// ✅ ดึงข้อมูลช่างทั้งหมดพร้อมสถิติงาน
+
 export const getAllTechnicians = async (req, res) => {
   try {
     const techs = await Technician.find();
@@ -29,7 +29,6 @@ export const getAllTechnicians = async (req, res) => {
   }
 };
 
-// ✅ ดึงข้อมูลรายช่าง
 export const getTechnicianById = async (req, res) => {
   try {
     const tech = await Technician.findById(req.params.id);
@@ -40,7 +39,6 @@ export const getTechnicianById = async (req, res) => {
   }
 };
 
-// ✅ แก้ไขข้อมูลช่าง
 export const updateTechnician = async (req, res) => {
   try {
     const updated = await Technician.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -50,7 +48,6 @@ export const updateTechnician = async (req, res) => {
   }
 };
 
-// ✅ ลบข้อมูลช่าง
 export const deleteTechnician = async (req, res) => {
   try {
     await Technician.findByIdAndDelete(req.params.id);

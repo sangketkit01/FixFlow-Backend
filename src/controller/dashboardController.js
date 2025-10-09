@@ -18,7 +18,6 @@ export const getDashboardStats = async (req, res) => {
             }
         ]);
 
-        // แปลงผลลัพธ์จาก Array ให้เป็น Object เพื่อเข้าถึงง่าย (Map the results)
         const statMap = statsPipeline.reduce((acc, item) => {
             acc[item.status] = item.count;
             return acc;
