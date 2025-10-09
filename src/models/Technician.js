@@ -16,7 +16,7 @@ const technicianSchema = new mongoose.Schema({
     province: { type: String, required: true },
     working_area_district: { type: String },
     working_area_province: { type: String },
-    birth_data: { type: Date, required: true }
+    birth_date: { type: Date, required: true }
 }, {
     timestamps: true
 })

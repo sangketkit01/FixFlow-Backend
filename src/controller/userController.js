@@ -4,6 +4,7 @@ import path from "path";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import Task from "../models/Task.js";
+import TaskImage from "../models/TaskImage.js";
 export const updateProfile = async (req, res) => {
     try {
         const username = req.user.username;
@@ -19,7 +20,7 @@ export const updateProfile = async (req, res) => {
         if (req.file) {
             const newProfilePath = path.posix.join("images/users/profile", req.file.filename);
 
-            const oldFilePath = path.join("public", user.profile_path?.replace(/^images\//, ""));
+            // const oldFilePath = path.join("public", user.profile_path?.replace(/^images\//, ""));
 
             if (user.profile_path && fs.existsSync(oldFilePath)) {
                 try {
@@ -99,5 +100,47 @@ export const getUserDashboard = async (req, res) => {
         .limit(5);
 
     res.json({ summary, recentTasks });
+};
+
+export const userUploadTaskImage = async (req, res) => {
+    try {
+        const user = req.user;
+        const { task_id, description } = req.body;
+
+        if (!task_id) {
+            return res.status(400).json({ message: "ต้องระบุ task_id" });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ message: "กรุณาเลือกไฟล์รูปภาพ" });
+        }
+
+        const task = await Task.findById(task_id);
+        if (!task) {
+            fs.unlinkSync(req.file.path);
+            return res.status(404).json({ message: "ไม่พบน งานที่ระบุ" });
+        }
+
+        if (task.username !== user.username) {
+            fs.unlinkSync(req.file.path);
+            return res.status(403).json({ message: "คุณไม่มีสิทธิ์อัปโหลดรูปสำหรับงานนี้" });
+        }
+
+        // ✅ ดึงชื่อไฟล์อย่างเดียว แล้ว prefix ด้วย /images/
+        const fileName = path.basename(req.file.path);
+        const imagePath = `/images/${fileName}`;
+
+        const newImage = await TaskImage.create({
+            task_id,
+            image_path: imagePath,
+            added_by: "user",
+            description: description || "",
+        });
+
+        res.status(201).json(newImage);
+    } catch (err) {
+        console.error("Upload task image error:", err);
+        res.status(500).json({ message: "Server error: " + err.message });
+    }
 };
 

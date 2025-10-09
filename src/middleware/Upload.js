@@ -9,7 +9,8 @@ const pathMap = {
     task_image: "public/tasks/images",
     user_profile_image: "public/users/profile",
     technician_profile_image: "public/technicians/profile",
-    admin_profile_image: "public/admins/profile"
+    admin_profile_image: "public/admins/profile",
+    slip_image: "public/payments/slips"
 };
 
 const storage = multer.diskStorage({

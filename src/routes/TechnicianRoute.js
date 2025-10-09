@@ -12,7 +12,9 @@ import {
   changeTechnicianPassword 
 } from "../controller/TechnicianProfileController.js";
 import uploadProfile from "../middleware/UploadTechnicianProfile.js";
-
+import TechnicianOwnerTaskMiddleware from "../middleware/TechnicianOwnerTaskMiddleware.js";
+import { requestCancelTask, uploadTaskImage } from "../controller/task/TaskController.js";
+import { addPaymentDetail, confirmPayment, deletePaymentDetail, getPaymentDetails, getPaymentInfo, upsertPayment } from "../controller/PaymentController.js";
 
 const technicianRouter = express.Router();
 
@@ -58,13 +60,31 @@ technicianRouter.put("/tasks/:id/accept", authTechnician, acceptTask);
 technicianRouter.get("/tasks/my-tasks", authTechnician, getMyTasks);
 
 // GET: ดึงข้อมูลงานชิ้นเดียวตาม ID
-technicianRouter.get("/tasks/:taskId", authTechnician, getTaskById);
+technicianRouter.get("/tasks/:taskId", authTechnician, TechnicianOwnerTaskMiddleware, getTaskById);
 
 // GET: ดึงรูปภาพทั้งหมดของงานชิ้นเดียว
-technicianRouter.get("/tasks/:taskId/images", authTechnician, getTaskImages);
+technicianRouter.get("/tasks/:taskId/images", authTechnician, TechnicianOwnerTaskMiddleware, getTaskImages);
 
 // PUT: อัปเดตสถานะงาน
-technicianRouter.put("/tasks/:taskId/status", authTechnician, updateTaskStatus);
+technicianRouter.put("/tasks/:taskId/status", authTechnician, TechnicianOwnerTaskMiddleware, updateTaskStatus);
+
+// POST: อัปโหลดรูปภาพสำหรับงาน
+technicianRouter.post(
+  "/tasks/:taskId/upload-image",
+  authTechnician,
+  TechnicianOwnerTaskMiddleware,
+  upload.single("task_image"),
+  uploadTaskImage
+);
+
+technicianRouter.put("/tasks/:taskId/request-cancel", authTechnician, TechnicianOwnerTaskMiddleware, requestCancelTask);
+
+technicianRouter.get("/tasks/:taskId/payment", authTechnician, TechnicianOwnerTaskMiddleware, getPaymentDetails);
+technicianRouter.post("/tasks/:taskId/payment", authTechnician, TechnicianOwnerTaskMiddleware, upsertPayment);
+technicianRouter.post("/payment-detail", authTechnician, TechnicianOwnerTaskMiddleware, addPaymentDetail);
+technicianRouter.delete("/payment-detail/:id", authTechnician, TechnicianOwnerTaskMiddleware, deletePaymentDetail);
+technicianRouter.get("/tasks/:taskId/payment-info", authTechnician, TechnicianOwnerTaskMiddleware, getPaymentInfo);
+technicianRouter.put("/tasks/:taskId/confirm-payment", authTechnician, TechnicianOwnerTaskMiddleware, confirmPayment);
 
 // ===============================
 // Technician Profile Management

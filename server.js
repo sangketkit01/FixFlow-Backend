@@ -10,9 +10,13 @@ import adminRouter from "./src/routes/AdminRoute.js";
 import { Logout } from "./src/controller/IndexController.js";
 import taskRouter from "./src/routes/taskRoutes.js";
 import taskTypeRouter from "./src/routes/TaskTypeRoute.js";
+import PaymentRouter from "./src/routes/PaymentRoute.js";
 
 
-dotenv.config();
+dotenv.config(); 
+
+
+
 
 const app = express();
 connectDB();
@@ -35,12 +39,6 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use("/images", express.static("public"));
 
-
-app.use((req, res, next) => {
-    res.set("Cache-Control", "no-store");
-    next();
-});
-
 app.get("/ping", (req, res) => {
     res.send("pong");
 });
@@ -53,6 +51,8 @@ app.use("/task", taskRouter);
 
 app.post("/logout", Logout)
 app.use("/api/tasks", taskRouter);
+app.use("/admin/stats", PaymentRouter);
+
 
 // ให้ Express เปิดโฟลเดอร์เก็บรูปโปรไฟล์ช่าง
 app.use("/images/technicians", express.static("public/images/technicians"));
@@ -73,6 +73,14 @@ process.on("unhandledRejection", (err) => {
     console.error("UNHANDLED PROMISE:", err);
 });
 
+
+
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true,               
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {

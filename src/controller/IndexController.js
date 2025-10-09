@@ -127,6 +127,7 @@ export const LoginAdmin = async (req, res) => {
         }
 
         const isMatch = await admin.comparePassword(password);
+
         if (!isMatch) {
             return res.status(401).json({ "message": "Invalid password" })
         }
@@ -159,7 +160,7 @@ export const LoginAdmin = async (req, res) => {
 
         return res.json({ message: "Login successful" });
     } catch (err) {
-        onsole.error(err);
+        console.error(err);
         return res.status(500).json({ message: "Server error" });
     }
 }
